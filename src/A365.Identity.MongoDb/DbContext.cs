@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Claims;
 using Microsoft.AspNet.Identity;
 using Microsoft.Framework.ConfigurationModel;
+using Microsoft.Framework.OptionsModel;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
@@ -17,15 +18,30 @@ namespace A365.Identity.MongoDb
 		private readonly string _roleTableName = "Roles";
 		public MongoDatabase Database { get; set; }
 
-		private DbContext(string serverName, string databaseName, string userTableName, string roleTableName)
+		public DbContext(IOptions<MongoIdentityOptions> service)
 		{
-			if (!string.IsNullOrWhiteSpace(userTableName))
-				_userTableName = userTableName;
-			if (!string.IsNullOrWhiteSpace(roleTableName))
-				_roleTableName = roleTableName;
-			var client = new MongoClient(serverName);
+			const string serverConfig = "MongoIdentity:ConnectionString";
+			const string databaseConfig = "MongoIdentity:IdentityDatabase";
+			const string exceptionMessage = "Параметр config.json '{0}' не определен.";
+
+			if (service?.Options == null)
+				throw new ConfigurationException("Ошибка конфигуарции config.json, нет развдела MongoIdentity");
+
+			if (!string.IsNullOrWhiteSpace(service.Options.UserTableName))
+				_userTableName = service.Options.UserTableName;
+			if (!string.IsNullOrWhiteSpace(service.Options.RoleTableName))
+				_roleTableName = service.Options.RoleTableName;
+
+
+			if (string.IsNullOrWhiteSpace(service.Options.ConnectionString))
+				throw new ConfigurationException(string.Format(exceptionMessage, serverConfig));
+
+			if (string.IsNullOrWhiteSpace(service.Options.IdentityDatabase))
+				throw new ConfigurationException(string.Format(exceptionMessage, databaseConfig));
+
+			var client = new MongoClient(service.Options.ConnectionString);
 			var server = client.GetServer();
-			Database = server.GetDatabase(databaseName);
+			Database = server.GetDatabase(service.Options.IdentityDatabase);
 		}
 
 		public void SaveUser(User user)
@@ -84,27 +100,6 @@ namespace A365.Identity.MongoDb
 		{
 			Database = null;
 		}
-
-		public static DbContext CreateContext(IConfiguration config)
-		{
-			const string serverConfig = "MongoIdentity:ConnectionString";
-			const string databaseConfig = "MongoIdentity:IdentityDatabase";
-			const string userTableNameConfig = "MongoIdentity:UserTableName";
-			const string roleTableNameConfig = "MongoIdentity:RoleTableName";
-
-			const string exceptionMessage = "Параметр config.json '{0}' не определен.";
-
-			var server = config.Get(serverConfig);
-			if (string.IsNullOrWhiteSpace(server))
-				throw new ConfigurationException(string.Format(exceptionMessage, serverConfig));
-
-			var database = config.Get(databaseConfig);
-			if (string.IsNullOrWhiteSpace(database))
-				throw new ConfigurationException(string.Format(exceptionMessage, databaseConfig));
-
-			return new DbContext(server, database, config.Get(userTableNameConfig), config.Get(roleTableNameConfig));
-		}
-
 		public IList<TUser> GetUsersByClaim<TUser>(Claim claim) where TUser : User
         {
 			var c = Database.GetCollection<TUser>(_userTableName).AsQueryable();

@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using Microsoft.AspNet.Identity;
 using Microsoft.Framework.ConfigurationModel;
 using Microsoft.Framework.DependencyInjection;
+using Microsoft.Framework.DependencyInjection.Fallback;
+using Microsoft.Framework.OptionsModel;
 
 namespace A365.Identity.MongoDb
 {
+	public class MongoIdentityOptions
+	{
+		public string ConnectionString { get; set; }
+		public string IdentityDatabase { get; set; }
+		public string UserTableName { get; set; }
+		public string RoleTableName { get; set; }
+	}
 
 	public static class BuilderExtensions
 	{
@@ -16,9 +25,10 @@ namespace A365.Identity.MongoDb
 			where TRole : Role
 		{
 			var builder = services.AddIdentity<TUser, TRole>(config, configureOptions, useDefaultSubKey);
-            builder.Services.AddSingleton(i=>DbContext.CreateContext(config));
+            builder.Services.AddSingleton<DbContext>();
 			builder.Services.Add(GetDefaultServices(builder.UserType, builder.RoleType));
-			return builder;
+			builder.Services.Configure<MongoIdentityOptions>(config.GetSubKey("MongoIdentity"));
+            return builder;
 		}
 
 		public static IEnumerable<IServiceDescriptor> GetDefaultServices(Type userType, Type roleType)

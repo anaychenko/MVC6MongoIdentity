@@ -35,8 +35,11 @@ namespace MongoIdentity
 			// Add Identity services to the services container.
 			services.AddMongoIdentity<ApplicationUser, ApplicationRole>(Configuration);
 
-            // Add MVC services to the services container.
-            services.AddMvc();
+			// Configure Mongo Identity Options
+			services.Configure<MongoIdentityOptions>(o => o.IdentityDatabase = "MongoIdentity");
+
+			// Add MVC services to the services container.
+			services.AddMvc();
 
             // Uncomment the following line to add Web API servcies which makes it easier to port Web API 2 controllers.
             // You need to add Microsoft.AspNet.Mvc.WebApiCompatShim package to project.json
