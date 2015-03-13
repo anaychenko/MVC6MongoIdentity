@@ -1,7 +1,7 @@
 # MVC-6 MongoDb Identity support
 Using:
 
-1. Add MongoDb connеction info in config.json
+1. Add MongoDb connction info in config.json
 ```c#
 {
 	"MongoIdentity": {
