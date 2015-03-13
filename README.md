@@ -1,7 +1,8 @@
 # MVC-6 MongoDb Identity support
 Using:
 
-1. config.json
+1. Add MongoDb connction info in config.json
+```c#
 {
 	"MongoIdentity": {
 		"ConnectionString": "mongodb://localhost",
@@ -10,26 +11,27 @@ Using:
 		"RoleTableName":  "Roles"   **Optional
 	}
 }
-2. AccountViewModels.cs
+```
+2. Create models: AccountViewModels.cs
+```c#
+public class ApplicationUser : User
+{
+	public string FirstName { get; set; }
+	public string LastName { get; set; } 
+	public DataType BirthDay { get; set; }
+}
 
-	public class ApplicationUser : User
-	{
-		public string FirstName { get; set; }
-		public string LastName { get; set; } 
-		public DataType BirthDay { get; set; }
-	}
-
-
-	public class ApplicationRole : Role
-	{
-		public string Desription { get; set; }
-	}
-
-2. Startup.cs
+public class ApplicationRole : Role
+{
+	public string Desription { get; set; }
+}
+```
+2. Add Identity services to the services container Startup.cs
+```c#
 public void ConfigureServices(IServiceCollection services)
 {
-		// Add Identity services to the services container.
-		services.AddMongoIdentity<ApplicationUser, ApplicationRole>(Configuration);
+	// Add Identity services to the services container.
+	services.AddMongoIdentity<ApplicationUser, ApplicationRole>(Configuration);
 
     // Add MVC services to the services container.
     services.AddMvc();
@@ -38,7 +40,7 @@ public void ConfigureServices(IServiceCollection services)
     // You need to add Microsoft.AspNet.Mvc.WebApiCompatShim package to project.json
     // services.AddWebApiConventions();
 }
-
+```
 
 
 
