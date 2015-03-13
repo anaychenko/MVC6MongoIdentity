@@ -18,7 +18,7 @@ public class ApplicationUser : User
 {
 	public string FirstName { get; set; }
 	public string LastName { get; set; } 
-	public DataType BirthDay { get; set; }
+	public DateTime BirthDay { get; set; }
 }
 
 public class ApplicationRole : Role
