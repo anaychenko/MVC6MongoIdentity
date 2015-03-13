@@ -32,13 +32,12 @@ public void ConfigureServices(IServiceCollection services)
 {
 	// Add Identity services to the services container.
 	services.AddMongoIdentity<ApplicationUser, ApplicationRole>(Configuration);
+	
+	// Configure Mongo Identity Options (optional)
+	services.Configure<MongoIdentityOptions>(o => o.IdentityDatabase = "MongoIdentity");
 
-    // Add MVC services to the services container.
-    services.AddMvc();
-
-    // Uncomment the following line to add Web API servcies which makes it easier to port Web API 2 controllers.
-    // You need to add Microsoft.AspNet.Mvc.WebApiCompatShim package to project.json
-    // services.AddWebApiConventions();
+	// Add MVC services to the services container.
+	services.AddMvc();
 }
 ```
 
