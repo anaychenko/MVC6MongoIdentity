@@ -1,0 +1,9 @@
+{
+	"MongoIdentity": {
+		"ConnectionString": "mongodb://localhost",
+		"IdentityDatabase": "MongoIdentity",
+		"UserTableName": "Users",
+		"RoleTableName":  "Roles"
+	}
+}
+
