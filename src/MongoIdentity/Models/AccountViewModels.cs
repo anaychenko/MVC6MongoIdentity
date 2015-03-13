@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using A365.Identity.MongoDb;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoIdentity.Models
 {
